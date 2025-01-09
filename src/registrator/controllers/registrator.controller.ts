@@ -1,8 +1,8 @@
-import { badRequest, created } from '@shared/helpers'
+import { badRequest, created, serverError } from '@shared/helpers'
 import { Controller } from '@shared/protocols'
 import { HttpResponse } from '@shared/protocols/http'
 import { Request, Response } from 'express'
-import { InvalidParamError } from '@shared/errors'
+import { InvalidParamError, ServerError } from '@shared/errors'
 import { StatusCodes } from 'http-status-codes'
 import { makePrismaRegistratorRepository } from '@registrator/repositories'
 
@@ -31,7 +31,7 @@ class RegistratorController implements Controller {
         .status(StatusCodes.BAD_REQUEST)
         .send(badRequest(new InvalidParamError('passwordConfirmation')))
     }
-    makePrismaRegistratorRepository().register({
+    const createUser = makePrismaRegistratorRepository().register({
       firstName,
       lastName,
       email,
