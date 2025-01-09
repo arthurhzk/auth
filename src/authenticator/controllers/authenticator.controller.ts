@@ -3,11 +3,11 @@ import { StatusCodes } from 'http-status-codes'
 import { Request, Response } from 'express'
 import { badRequest, ok } from '@shared/helpers'
 import { MissingParamError } from '@shared/errors'
-import { makePrismaAuthenticatorRepository } from '@authenticator/repositories/prisma-authenticator.repository'
+import { makePrismaAuthenticatorRepository } from '@authenticator/repositories'
 import { HttpResponse } from '@shared/protocols'
 class AuthenticatorController implements Controller {
   async handle(request: Request, response: Response): Promise<HttpResponse> {
-    const { ...body } = request.body
+    const { email, password } = request.body
 
     const requiredFields = ['email', 'password']
     for (const field of requiredFields) {
@@ -17,7 +17,10 @@ class AuthenticatorController implements Controller {
           .send(badRequest(new MissingParamError(field)))
       }
     }
-    const authenticate = await makePrismaAuthenticatorRepository().auth(body)
+    const authenticate = await makePrismaAuthenticatorRepository().auth({
+      email,
+      password,
+    })
     return response
       .status(StatusCodes.OK)
       .send(ok(authenticate, 'User authenticated'))

@@ -4,10 +4,11 @@ import { HttpResponse } from '@shared/protocols/http'
 import { Request, Response } from 'express'
 import { InvalidParamError } from '@shared/errors'
 import { StatusCodes } from 'http-status-codes'
+import { makePrismaRegistratorRepository } from '@registrator/repositories'
 
 class RegistratorController implements Controller {
   async handle(request: Request, response: Response): Promise<HttpResponse> {
-    const { firstName, lastName, email, password, passwordConfirmation } =
+    const { firstName, lastName, email, password, passwordConfirmation, city } =
       request.body
 
     const requiredFields = [
@@ -30,6 +31,14 @@ class RegistratorController implements Controller {
         .status(StatusCodes.BAD_REQUEST)
         .send(badRequest(new InvalidParamError('passwordConfirmation')))
     }
+    makePrismaRegistratorRepository().register({
+      firstName,
+      lastName,
+      email,
+      password,
+      city,
+    })
+
     return response
       .status(StatusCodes.CREATED)
       .send(

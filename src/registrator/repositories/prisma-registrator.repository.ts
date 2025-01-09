@@ -5,15 +5,19 @@ import prisma from '@shared/database'
 
 export class PrismaRegistratorRepository implements RegistrateUser {
   async register(input: RegistrateDTO.Request): Promise<User> {
-    return prisma.user.create({
-      data: {
-        firstName: input.firstName,
-        lastName: input.lastName,
-        email: input.email,
-        password: input.password,
-        city: input.city,
-      },
-    })
+    try {
+      return prisma.user.create({
+        data: {
+          firstName: input.firstName,
+          lastName: input.lastName,
+          email: input.email,
+          password: input.password,
+          city: input.city,
+        },
+      })
+    } catch (error) {
+      throw new Error(error)
+    }
   }
 }
 
