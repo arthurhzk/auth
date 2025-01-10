@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { EmailValidatorAdapter } from '@shared/adapters/email-validator/email-validator.adapter'
+import { EmailValidatorAdapter } from '@shared/adapters/email-validator'
 import { faker } from '@faker-js/faker'
 describe('EmailValidatorAdapter', () => {
   beforeEach(() => vi.resetAllMocks())

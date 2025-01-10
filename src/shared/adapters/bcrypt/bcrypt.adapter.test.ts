@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { BcryptAdapter } from '@shared/adapters/bcrypt/bcrypt.adapter'
+import { BcryptAdapter } from '@shared/adapters/bcrypt'
 import { faker } from '@faker-js/faker'
 
 describe('Bcrypt Adapter', () => {

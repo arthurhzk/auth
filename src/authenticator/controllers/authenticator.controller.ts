@@ -2,7 +2,7 @@ import { Controller } from '@shared/protocols'
 import { StatusCodes } from 'http-status-codes'
 import { Request, Response } from 'express'
 import { badRequest, ok } from '@shared/helpers'
-import { MissingParamError } from '@shared/errors'
+import { MissingParamError, NotFoundError } from '@shared/errors'
 import { makePrismaAuthenticatorRepository } from '@authenticator/repositories'
 import { HttpResponse } from '@shared/protocols'
 class AuthenticatorController implements Controller {
@@ -17,6 +17,16 @@ class AuthenticatorController implements Controller {
           .send(badRequest(new MissingParamError(field)))
       }
     }
+
+    const findUserByEmail =
+      await makePrismaAuthenticatorRepository().findByEmail(email)
+
+    if (!findUserByEmail) {
+      return response
+        .status(StatusCodes.UNAUTHORIZED)
+        .send(badRequest(new NotFoundError('User not found')))
+    }
+
     const authenticate = await makePrismaAuthenticatorRepository().auth({
       email,
       password,

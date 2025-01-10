@@ -1,11 +1,11 @@
-import { badRequest, created, serverError } from '@shared/helpers'
+import { badRequest, created } from '@shared/helpers'
 import { Controller } from '@shared/protocols'
 import { HttpResponse } from '@shared/protocols/http'
 import { Request, Response } from 'express'
-import { InvalidParamError, ServerError } from '@shared/errors'
+import { InvalidParamError } from '@shared/errors'
 import { StatusCodes } from 'http-status-codes'
 import { makePrismaRegistratorRepository } from '@registrator/repositories'
-
+import { EmailValidatorAdapter } from '@shared/adapters/email-validator'
 class RegistratorController implements Controller {
   async handle(request: Request, response: Response): Promise<HttpResponse> {
     const { firstName, lastName, email, password, passwordConfirmation, city } =
@@ -26,12 +26,30 @@ class RegistratorController implements Controller {
           .send(badRequest(new InvalidParamError(field)))
       }
     }
+    const isEmailValid = new EmailValidatorAdapter().isValid(email)
+
+    if (!isEmailValid) {
+      return response
+        .status(StatusCodes.BAD_REQUEST)
+        .send(badRequest(new InvalidParamError('email')))
+    }
+
     if (password !== passwordConfirmation) {
       return response
         .status(StatusCodes.BAD_REQUEST)
         .send(badRequest(new InvalidParamError('passwordConfirmation')))
     }
-    const createUser = makePrismaRegistratorRepository().register({
+
+    const findUserByEmail = await makePrismaRegistratorRepository().findByEmail(
+      email,
+    )
+
+    if (findUserByEmail) {
+      return response
+        .status(StatusCodes.BAD_REQUEST)
+        .send(badRequest(new InvalidParamError('email')))
+    }
+    await makePrismaRegistratorRepository().register({
       firstName,
       lastName,
       email,
